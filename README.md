@@ -10,6 +10,7 @@ This is a RESTful API for a simple real estate application built using Node.js w
 
 
 ## Run Steps:
+Note: you should have Docker installed
 
 ### Step 1
 ```bash
