@@ -31,6 +31,12 @@ router.put(
     AreaController.updateArea
 );
 
-// router.delete("/:id", AreaController.deleteArea);
+router.delete(
+    "/:areaId",
+    auth(),
+    validation(validators.deleting) as RequestHandler, 
+    AreaController.deleteArea
+);
+
 
 export default router;

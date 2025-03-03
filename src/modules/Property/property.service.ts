@@ -9,27 +9,28 @@ import { CloudinaryService } from './../../utils/cloudinary.service';
 import short from 'short-uuid';
 
 class PropertyService {
+    private userRepository: Repository<User>;
     private propertyRepository: Repository<Property>;
     private projectRepository: Repository<Project>;
-    private userRepository: Repository<User>;
     private cloudinaryService: CloudinaryService;
 
     constructor() {
+        this.userRepository = AppDataSource.getRepository(User);
         this.propertyRepository = AppDataSource.getRepository(Property);
         this.projectRepository = AppDataSource.getRepository(Project);
-        this.userRepository = AppDataSource.getRepository(User);
         this.cloudinaryService = new CloudinaryService();
     }
 
     async getAll(query: any) {
+        query["isDeleted"] = { "eq": false };
         let queryBuilder = this.propertyRepository.createQueryBuilder('property');
         const rowsCount = await queryBuilder.getCount();
         const apiFeatures = new ApiFeatures(queryBuilder, 'property', query)
             .select()
             .filter()
+            .search()
             .sort()
-            .paginate()
-            .search();
+            .paginate();
 
         const metadata: any = {
             totalNumberOfData: rowsCount,
@@ -46,6 +47,7 @@ class PropertyService {
 
     async getById(propertyId: string, query: any) {
         query["_id"] = { "eq": propertyId };
+        query["isDeleted"] = { "eq": false };
         let queryBuilder = this.propertyRepository.createQueryBuilder('property');
         const apiFeatures = new ApiFeatures(queryBuilder, 'property', query)
             .select()
@@ -57,8 +59,9 @@ class PropertyService {
     async create(userId: string, data: Partial<Property>, files: Express.Multer.File[]) {
 
         // validate duplication of property name
-        const checkProject = await this.propertyRepository.findOneBy({ name: data.name });
-        if (checkProject && checkProject.name == data.name) {
+        data.name = data.name?.toLowerCase();
+        const checkProperty = await this.propertyRepository.findOneBy({ name: data.name, isDeleted: false });
+        if (checkProperty) {
             throw new CustomError("Duplicated property name", 409);
         }
 
@@ -70,11 +73,25 @@ class PropertyService {
 
         // get project data for property
         const projectId: string = String(data.projectId);
-        const project = await this.projectRepository.findOneBy({ _id: projectId });
-        if (!project) {
+        const checkProject = await this.projectRepository.createQueryBuilder('project')
+            .where("project._id = :value1 AND area.isDeleted = :value2", {value1: projectId, value2: false})
+            .leftJoinAndSelect("project.cityId", "city")
+            .leftJoinAndSelect("project.areaId", "area")
+            .getOne();
+        if (!checkProject) {
             throw new CustomError("In-valid project id", 400);
         }
-        data.projectId = project;
+        data.cityId = checkProject.cityId;
+        data.areaId = checkProject.areaId;
+        data.projectId = new Project().copy({
+            _id: checkProject._id,
+            name: checkProject.name,
+            description: checkProject.description,
+            createdAt: checkProject.createdAt,
+            updatedAt: checkProject.updatedAt,
+            isDeleted: checkProject.isDeleted,
+        });
+
 
         // uploading Images to the cloudinary
         data.imageFolderId = short.generate();
@@ -102,18 +119,19 @@ class PropertyService {
     }
 
     async update(userId: string, userRole: string, propertyId: string, data: Partial<Property>, files: Express.Multer.File[]) {
-        const property = await this.propertyRepository.findOneBy({ _id: propertyId });
+        const property = await this.propertyRepository.findOneBy({ _id: propertyId, isDeleted: false });
         if (!property) {
             throw new CustomError("In-valid property id", 400);
         }
 
         if (data.name) {
+            data.name = data.name.toLowerCase();
             if (property.name == data.name) {
                 throw new CustomError("Sorry cannot update property with the same name", 400);
             }
 
-            const checkProperty = await this.propertyRepository.findOneBy({ name: data.name });
-            if (checkProperty && checkProperty.name == data.name) {
+            const checkProperty = await this.propertyRepository.findOneBy({ name: data.name, isDeleted: false });
+            if (checkProperty) {
                 throw new CustomError("Duplicated property name", 409);
             }
         }
@@ -142,14 +160,24 @@ class PropertyService {
         
         if (data.projectId) {
             const projectId: string = String(data.projectId);
-            // if(project?.projectId?._id == projectId){
-            //     throw new CustomError("Sorry cannot update project with the same project", 400);
-            // }
-            const project = await this.projectRepository.findOneBy({ _id: projectId });
-            if (!project) {
+            const checkProject = await this.projectRepository.createQueryBuilder('project')
+                .where("project._id = :value1 AND area.isDeleted = :value2", {value1: projectId, value2: false})
+                .leftJoinAndSelect("project.cityId", "city")
+                .leftJoinAndSelect("project.areaId", "area")
+                .getOne();
+            if (!checkProject) {
                 throw new CustomError("In-valid project id", 400);
             }
-            data.projectId = project;
+            data.cityId = checkProject.cityId;
+            data.areaId = checkProject.areaId;
+            data.projectId = new Project().copy({
+                _id: checkProject._id,
+                name: checkProject.name,
+                description: checkProject.description,
+                createdAt: checkProject.createdAt,
+                updatedAt: checkProject.updatedAt,
+                isDeleted: checkProject.isDeleted,
+            })
         }
 
         if (files && files.length) {
@@ -173,9 +201,16 @@ class PropertyService {
         return { message: "Done", property: updatedProperty };
     }
 
-    // async delete(id: string) {
-    //     return this.propertyRepository.delete(id);
-    // }
+    async delete(userId: string, userRole: string, propertyId: string) {
+        const property = await this.propertyRepository.findOneBy({ _id: propertyId, isDeleted: false });
+        if (!property) {
+            throw new CustomError("In-valid property id", 400);
+        }
+        
+        const deleteResult = await this.propertyRepository.update(propertyId, {isDeleted:true});
+        return { message: "Done" };
+    }
+
 }
 
 export default PropertyService;

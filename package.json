@@ -1,5 +1,5 @@
 {
-  "name": "nawy-real-estate-back",
+  "name": "real-estate-api",
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
@@ -32,8 +32,8 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
-    "nawy-real-estate-back": "file:",
     "pg": "^8.13.3",
+    "real-estate-api": "file:",
     "reflect-metadata": "^0.2.2",
     "short-uuid": "^5.2.0",
     "typeorm": "^0.3.20",

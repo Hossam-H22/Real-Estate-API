@@ -1,6 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn } from "typeorm";
 import { User } from "../User/user.entity";
 import { Project } from "../Project/project.entity";
+import { City } from "../City/city.entity";
+import { Area } from "../Area/area.entity";
 
 export enum PropertyType {
     HOUSE = "house",
@@ -67,17 +69,34 @@ export class Property {
     @Column("jsonb", { default: [] })
     images: PropertyImage[];
 
-    @ManyToOne(() => User, (user) => user.properties, { onDelete: "CASCADE" })
+    @ManyToOne(() => User, (user) => user.properties, { onDelete: "CASCADE", nullable: false })
     @JoinColumn({ name: "createdBy" })
     createdBy: User;
 
-    @ManyToOne(() => Project, (project) => project.properties, { onDelete: "CASCADE" })
+    @ManyToOne(() => Project, (project) => project.properties, { onDelete: "CASCADE", nullable: false })
     @JoinColumn({ name: "projectId" })
     projectId: Project;
+    
+    @ManyToOne(() => City, (city) => city.properties, { onDelete: "CASCADE", nullable: false })
+    @JoinColumn({ name: "cityId" })
+    cityId: City;
+
+    @ManyToOne(() => Area, (area) => area.properties, { onDelete: "CASCADE", nullable: false })
+    @JoinColumn({ name: "areaId" })
+    areaId: Area;
 
     @CreateDateColumn()
     createdAt: Date;
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @Column({default: false})
+    isDeleted: boolean;
+
+
+    setId(id:string){
+        this._id = id;
+        return this;
+    }
 }

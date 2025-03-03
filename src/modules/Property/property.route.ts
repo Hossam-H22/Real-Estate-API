@@ -40,6 +40,11 @@ router.put(
     PropertyController.updateProperty
 );
 
-// router.delete("/:propertyId", PropertyController.deleteProperty);
+router.delete(
+    "/:propertyId", 
+    auth(),
+    validation(validators.deleting) as RequestHandler,
+    PropertyController.deleteProperty
+);
 
 export default router;
