@@ -1,9 +1,9 @@
-# Nawy Real Estate Baeckend API
+# Real Estate API
 
 <br>
 
 ## Overview
-This is a RESTful API for a simple real estate application built using Node.js with TypeScript and PostgreSQL. The API allows users to manage properties, projects, areas, cities, and users.
+This is a RESTful API for a real estate application built using Node.js with TypeScript and PostgreSQL. The API allows users to manage properties, projects, areas, and cities.
 
 <br>
 
