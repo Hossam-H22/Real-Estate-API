@@ -19,12 +19,20 @@ router.post(
     validation(validators.create) as RequestHandler,
     CityController.createCity
 );
+
 router.put(
     "/:cityId", 
     auth(),
     validation(validators.update) as RequestHandler,
     CityController.updateCity
 );
-// router.delete("/:cityId", CityController.deleteCity);
+
+router.delete(
+    "/:cityId", 
+    auth(),
+    validation(validators.deleting) as RequestHandler,
+    CityController.deleteCity
+);
+
 
 export default router;

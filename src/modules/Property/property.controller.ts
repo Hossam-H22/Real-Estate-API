@@ -35,10 +35,15 @@ class PropertyController {
         res.status(200).json(updatedProperty);
     })
 
-    // static deleteProperty = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    //     await propertyService.delete(req.params.id);
-    //     res.status(204).send();
-    // })
+    static deleteProperty = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+        const deleteRes = await propertyService.delete(
+            req.headers?.userId as string,
+            req.headers?.userRole as string,
+            req.params.propertyId
+        );
+        res.status(200).json(deleteRes);
+    })
+
 }
 
 export default PropertyController;

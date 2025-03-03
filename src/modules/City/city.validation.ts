@@ -13,3 +13,7 @@ export const update = z.object({
     cityId: generalFields.id,
     name: z.string().min(2).max(20).optional(),
 }).strict();
+
+export const deleting = z.object({
+    cityId: generalFields.id,
+}).strict();

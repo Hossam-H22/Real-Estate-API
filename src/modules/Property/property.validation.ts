@@ -32,3 +32,7 @@ export const update = z.object({
     projectId: generalFields.id.optional(),
     file: z.array(generalFields.file.optional()).min(0).max(5).optional(),
 }).strict();
+
+export const deleting = z.object({
+    propertyId: generalFields.id,
+}).strict();

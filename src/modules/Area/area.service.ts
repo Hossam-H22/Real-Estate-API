@@ -2,6 +2,8 @@ import AppDataSource from "../../database/data-source";
 import ApiFeatures from "../../utils/apiFeatures";
 import { CustomError } from "../../utils/errorHandling";
 import { City } from "../City/city.entity";
+import { Project } from "../Project/project.entity";
+import { Property } from "../Property/property.entity";
 import { User } from "../User/user.entity";
 import { Area } from "./area.entity";
 import { Repository } from "typeorm";
@@ -10,22 +12,27 @@ class AreaService {
     private areaRepository: Repository<Area>;
     private cityRepository: Repository<City>;
     private userRepository: Repository<User>;
+    private projectRepository: Repository<Project>;
+    private propertyRepository: Repository<Property>;
 
     constructor() {
         this.areaRepository = AppDataSource.getRepository(Area);
         this.cityRepository = AppDataSource.getRepository(City);
         this.userRepository = AppDataSource.getRepository(User);
+        this.projectRepository = AppDataSource.getRepository(Project);
+        this.propertyRepository = AppDataSource.getRepository(Property);
     }
 
     async getAll(query: any) {
+        query["isDeleted"] = { "eq": false };
         let queryBuilder = this.areaRepository.createQueryBuilder('area');
         const rowsCount = await queryBuilder.getCount();
         const apiFeatures = new ApiFeatures(queryBuilder, 'area', query)
             .select()
             .filter()
+            .search()
             .sort()
-            .paginate()
-            .search();
+            .paginate();
 
         const metadata: any = {
             totalNumberOfData: rowsCount,
@@ -42,17 +49,18 @@ class AreaService {
 
     async getById(areaId: string, query: any) {
         query["_id"] = { "eq": areaId };
+        query["isDeleted"] = { "eq": false };
         let queryBuilder = this.areaRepository.createQueryBuilder('area');
         const apiFeatures = new ApiFeatures(queryBuilder, 'area', query)
             .select()
-            .filter()
+            .filter();
         const area = await apiFeatures['queryBuilder'].getOne();
         return { message: "Done", area };
     }
 
     async create(userId: string, data: Partial<Area>) {
         data.name = data.name?.toLowerCase();
-        const checkArea = await this.areaRepository.findOneBy({ name: data.name });
+        const checkArea = await this.areaRepository.findOneBy({ name: data.name, isDeleted: false });
         if (checkArea && checkArea.name == data.name) {
             throw new CustomError("Duplicated area name", 409);
         }
@@ -62,7 +70,7 @@ class AreaService {
         }
         
         const cityId: string = String(data.cityId);
-        const city = await this.cityRepository.findOneBy({ _id: cityId });
+        const city = await this.cityRepository.findOneBy({ _id: cityId, isDeleted: false });
         if (!city) {
             throw new CustomError("In-valid city id", 400);
         }
@@ -74,7 +82,7 @@ class AreaService {
     }
 
     async update(userId: string, userRole: string, areaId: string, data: Partial<Area>) {
-        const area = await this.areaRepository.findOneBy({ _id: areaId });
+        const area = await this.areaRepository.findOneBy({ _id: areaId, isDeleted: false });
         if (!area) {
             throw new CustomError("In-valid area id", 400);
         }
@@ -85,8 +93,8 @@ class AreaService {
                 throw new CustomError("Sorry cannot update area with the same name", 400);
             }
 
-            const checkArea = await this.areaRepository.findOneBy({ name: data.name });
-            if (checkArea && checkArea.name == data.name) {
+            const checkArea = await this.areaRepository.findOneBy({ name: data.name, isDeleted: false });
+            if (checkArea) {
                 throw new CustomError("Duplicated area name", 409);
             }
         }
@@ -96,7 +104,7 @@ class AreaService {
             // if(area?.cityId?._id == cityId){
             //     throw new CustomError("Sorry cannot update area with the same city", 400);
             // }
-            const city = await this.cityRepository.findOneBy({ _id: cityId });
+            const city = await this.cityRepository.findOneBy({ _id: cityId, isDeleted: false });
             if (!city) {
                 throw new CustomError("In-valid city id", 400);
             }
@@ -107,12 +115,19 @@ class AreaService {
         const updatedArea = await this.areaRepository.findOneBy({ _id: areaId })
         return { message: "Done", area: updatedArea };
     }
+    
+    async delete(userId: string, userRole: string, areaId: string) {
+        const area = await this.areaRepository.findOneBy({ _id: areaId, isDeleted: false });
+        if (!area) {
+            throw new CustomError("In-valid area id", 400);
+        }
+        const deleteResult = await this.areaRepository.update(areaId, {isDeleted:true});
+        const deleteProjectsResult = await this.projectRepository.update({areaId: new Area().setId(areaId) }, {isDeleted:true})
+        const deletePropertiesResult = await this.propertyRepository.update({areaId: new Area().setId(areaId) }, {isDeleted:true})
+        return { message: "Done" };
+    }
 
 
-
-    // async delete(id: string) {
-    //     return this.areaRepository.delete(id);
-    // }
 }
 
 export default AreaService;

@@ -29,11 +29,17 @@ class AreaController {
         );
         res.status(200).json(updatedArea);
     });
+    
+    static deleteArea = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+        const deleteRes = await areaService.delete(
+            req.headers?.userId as string, 
+            req.headers?.userRole as string, 
+            req.params.areaId, 
+        );
+        res.status(200).json(deleteRes);
+    });
 
-    // static deleteArea = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    //     await areaService.delete(req.params.id);
-    //     res.status(204).send();
-    // });
+
 }
 
 export default AreaController;

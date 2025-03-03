@@ -17,3 +17,7 @@ export const update = z.object({
     name: z.string().min(2).max(100).optional(),
     description: z.string().min(5).max(500).optional(),
 }).strict();
+
+export const deleting = z.object({
+    projectId: generalFields.id,
+}).strict();

@@ -18,19 +18,25 @@ const realtions: any = {
     "city": [
         { field: "createdBy", table: "user" },
         { field: "areas", table: "area" },
+        { field: "projects", table: "project" },
+        { field: "properties", table: "property" },
     ],
     "area": [
         { field: "createdBy", table: "user" },
         { field: "cityId", table: "city" },
         { field: "projects", table: "project" },
+        { field: "properties", table: "property" },
     ],
     "project": [
         { field: "createdBy", table: "user" },
         { field: "areaId", table: "area" },
+        { field: "cityId", table: "city" },
         { field: "properties", table: "property" },
     ],
     "property": [
         { field: "createdBy", table: "user" },
+        { field: "cityId", table: "city" },
+        { field: "areaId", table: "area" },
         { field: "projectId", table: "project" },
     ],
 }

@@ -4,24 +4,35 @@ import { Repository } from "typeorm";
 import { User } from "../User/user.entity";
 import ApiFeatures from "../../utils/apiFeatures";
 import { CustomError } from "../../utils/errorHandling";
+import { Area } from "../Area/area.entity";
+import { Project } from "../Project/project.entity";
+import { Property } from "../Property/property.entity";
 
 class CityService {
-    private cityRepository: Repository<City>;
     private userRepository: Repository<User>;
+    private cityRepository: Repository<City>;
+    private areaRepository: Repository<Area>;
+    private projectRepository: Repository<Project>;
+    private propertyRepository: Repository<Property>;
+
     constructor() {
-        this.cityRepository = AppDataSource.getRepository(City);
         this.userRepository = AppDataSource.getRepository(User);
+        this.cityRepository = AppDataSource.getRepository(City);
+        this.areaRepository = AppDataSource.getRepository(Area);
+        this.projectRepository = AppDataSource.getRepository(Project);
+        this.propertyRepository = AppDataSource.getRepository(Property);
     }
 
     async getAll(query: any) {
+        query["isDeleted"] = { "eq": false };
         let queryBuilder = this.cityRepository.createQueryBuilder('city');
         const rowsCount = await queryBuilder.getCount();
         const apiFeatures = new ApiFeatures(queryBuilder, 'city', query)
             .select()
             .filter()
+            .search()
             .sort()
-            .paginate()
-            .search();
+            .paginate();
 
         const metadata: any = {
             totalNumberOfData: rowsCount,
@@ -38,6 +49,7 @@ class CityService {
 
     async getById(cityId: string, query: any) {
         query["_id"] = { "eq": cityId };
+        query["isDeleted"] = { "eq": false };
         let queryBuilder = this.cityRepository.createQueryBuilder('city');
         const apiFeatures = new ApiFeatures(queryBuilder, 'city', query)
             .select()
@@ -52,13 +64,17 @@ class CityService {
             const user = await this.userRepository.findOneBy({ _id: userId })
             data.createdBy = user as User;
         }
+        const checkCity = await this.cityRepository.findOneBy({ name: data.name, isDeleted: false });
+        if(checkCity){
+            throw new CustomError("Duplicated city name", 409);
+        }
         const city = this.cityRepository.create(data);
         const newCity = await this.cityRepository.save(city);
         return { message: "Done", city: newCity };
     }
 
-    async update(cityId: string, data: Partial<City>) {
-        let checkCity = await this.cityRepository.findOneBy({ _id: cityId });
+    async update(userId: string, userRole: string, cityId: string, data: Partial<City>) {
+        let checkCity = await this.cityRepository.findOneBy({ _id: cityId, isDeleted: false });
         if (!checkCity) {
             throw new CustomError("In-valid city id", 400);
         }
@@ -69,8 +85,8 @@ class CityService {
                 throw new CustomError("Sorry cannot update city with the same name", 400);
             }
 
-            checkCity = await this.cityRepository.findOneBy({ name: data.name });
-            if (checkCity && checkCity.name == data.name) {
+            checkCity = await this.cityRepository.findOneBy({ name: data.name, isDeleted: false  });
+            if (checkCity) {
                 throw new CustomError("Duplicated city name", 409);
             }
         }
@@ -79,9 +95,19 @@ class CityService {
         return { message: "Done", city };
     }
 
-    // async delete(id: string) {
-    //     return await this.cityRepository.delete(id);
-    // }
+    async delete(userId: string, userRole: string, cityId: string) {
+        let checkCity = await this.cityRepository.findOneBy({ _id: cityId, isDeleted: false });
+        if (!checkCity) {
+            throw new CustomError("In-valid city id", 400);
+        }
+        const deleteResult = await this.cityRepository.update(cityId, {isDeleted:true});
+        const deleteAreasResult = await this.areaRepository.update({cityId: new City().setId(cityId) }, {isDeleted:true})
+        const deleteProjectsResult = await this.projectRepository.update({cityId: new City().setId(cityId) }, {isDeleted:true})
+        const deletePropertiesResult = await this.propertyRepository.update({cityId: new City().setId(cityId) }, {isDeleted:true})
+        return { message: "Done" };
+    }
+
+
 }
 
 export default CityService;

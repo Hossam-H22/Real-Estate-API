@@ -31,6 +31,12 @@ router.put(
     ProjectController.updateProject
 );
 
-// router.delete("/:id", ProjectController.deleteProject);
+router.delete(
+    "/:projectId", 
+    auth(),
+    validation(validators.deleting) as RequestHandler,
+    ProjectController.deleteProject
+);
+
 
 export default router;
