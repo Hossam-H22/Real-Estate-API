@@ -91,7 +91,7 @@ class ApiFeatures<T extends ObjectLiteral> {
                     }
                 });
             } else {
-                this.queryBuilder.andWhere(`${this.tableAlias}.${key} = :value`, { value });
+                // this.queryBuilder.andWhere(`${this.tableAlias}.${key} = :value`, { value });
                 conditions.push(`${this.tableAlias}.${key} = :value${c}`)
                 parameters[`value${c}`] = value;
                 c++

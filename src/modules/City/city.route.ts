@@ -15,13 +15,13 @@ router.get(
 
 router.post(
     "/", 
-    // auth(),
+    auth(),
     validation(validators.create) as RequestHandler,
     CityController.createCity
 );
 router.put(
     "/:cityId", 
-    // auth(),
+    auth(),
     validation(validators.update) as RequestHandler,
     CityController.updateCity
 );

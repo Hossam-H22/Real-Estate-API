@@ -19,19 +19,19 @@ class UserService {
         const apiFeatures = new ApiFeatures(queryBuilder, 'user', query)
             .select()
             .filter()
+            .search()
             .sort()
-            .paginate()
-            .search();
+            .paginate();
         const users = await apiFeatures['queryBuilder'].getMany();
-        return users;
+        return { message: "Done", users };
     }
 
     async getUserById(id: string, query: any) {
         query["_id"] = { "eq" : id };
         let queryBuilder = this.userRepository.createQueryBuilder('user');
         const apiFeatures = new ApiFeatures(queryBuilder, 'user', query)
-            .filter()
             .select()
+            .filter();
         const user = await apiFeatures['queryBuilder'].getOne();
         // const user = await this.userRepository.findOneBy({ _id: id });
         // if(!user){

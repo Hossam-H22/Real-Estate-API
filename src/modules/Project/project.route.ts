@@ -19,14 +19,14 @@ router.get(
 
 router.post(
     "/", 
-    // auth(),
+    auth(),
     validation(validators.create) as RequestHandler,
     ProjectController.createProject
 );
 
 router.put(
     "/:projectId", 
-    // auth(),
+    auth(),
     validation(validators.update) as RequestHandler,
     ProjectController.updateProject
 );

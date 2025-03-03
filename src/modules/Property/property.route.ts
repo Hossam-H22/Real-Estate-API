@@ -20,7 +20,7 @@ router.get(
 
 router.post(
     "/", 
-    // auth(),
+    auth(),
     CloudinaryService.fileUpload(CloudinaryService.fileType.image).array(
         "file",
         5
@@ -31,7 +31,7 @@ router.post(
 
 router.put(
     "/:propertyId", 
-    // auth(),
+    auth(),
     CloudinaryService.fileUpload(CloudinaryService.fileType.image).array(
         "file",
         5

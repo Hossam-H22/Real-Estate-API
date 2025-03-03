@@ -19,14 +19,14 @@ router.get(
 
 router.post(
     "/",
-    // auth(),
+    auth(),
     validation(validators.create) as RequestHandler,
     AreaController.createArea
 );
 
 router.put(
     "/:areaId",
-    // auth(),
+    auth(),
     validation(validators.update) as RequestHandler, 
     AreaController.updateArea
 );
