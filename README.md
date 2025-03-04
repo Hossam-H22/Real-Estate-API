@@ -63,6 +63,7 @@ src/
       moduleName.controller.ts
       moduleName.service.ts
       moduleName.validation.ts
+      moduleName.roles.ts
   utils/
 ```
 
@@ -79,7 +80,8 @@ src/
   "password": "string",
   "phone": "string",
   "role": "enum('admin', 'buyer', 'agent')",
-  "createdAt": "Date"
+  "createdAt": "Date",
+  "favorites": ["UUID (references properties)"],
 }
 ```
 
@@ -141,34 +143,39 @@ src/
 Each module includes four endpoints:
 
 ### Users
-- `GET /users` - Get all users
-- `GET /users/:id` - Get a specific user
-- `POST /users` - Create a new user
-- `PUT /users/:id` - Update a user
+- `GET /user` - Get all users
+- `GET /user/:id` - Get a specific user
+- `POST /user` - Create a new user
+- `PUT /user/:id` - Update a user
 
 ### Cities
-- `GET /cities` - Get all cities
-- `GET /cities/:id` - Get a specific city
-- `POST /cities` - Create a new city
-- `PUT /cities/:id` - Update a city
+- `GET /city` - Get all cities
+- `GET /city/:id` - Get a specific city
+- `POST /city` - Create a new city
+- `PUT /city/:id` - Update a city
+- `Delete /city/:id` - Delete a city
 
 ### Areas
-- `GET /areas` - Get all areas
-- `GET /areas/:id` - Get a specific area
-- `POST /areas` - Create a new area
-- `PUT /areas/:id` - Update an area
+- `GET /area` - Get all areas
+- `GET /area/:id` - Get a specific area
+- `POST /area` - Create a new area
+- `PUT /area/:id` - Update an area
+- `Delete /area/:id` - Delete an area
 
 ### Projects
-- `GET /projects` - Get all projects
-- `GET /projects/:id` - Get a specific project
-- `POST /projects` - Create a new project
-- `PUT /projects/:id` - Update a project
+- `GET /project` - Get all projects
+- `GET /project/:id` - Get a specific project
+- `POST /project` - Create a new project
+- `PUT /project/:id` - Update a project
+- `Delete /project/:id` - Delete a project
 
 ### Properties
-- `GET /properties` - Get all properties
-- `GET /properties/:id` - Get a specific property
-- `POST /properties` - Create a new property
-- `PUT /properties/:id` - Update a property
+- `GET /property` - Get all properties
+- `GET /property/:id` - Get a specific property
+- `POST /property` - Create a new property
+- `PUT /property/:id` - Update a property
+- `Patch /property/:id/favorite` - Toggle property on favorite list of User
+- `Delete /property/:id` - Delete a property
 
 
 <br>
@@ -176,8 +183,9 @@ Each module includes four endpoints:
 
 ## Query Parameters for Filtering & Pagination
 - **Pagination**: `?page=1&size=10`
-- **Sorting**: like `?sort=-createdAt` (Descending), `?sort=price` (Ascending)
-- **Field Selection**: `?fields=name,description,price`
+- **Sorting**: `?sort=-createdAt` (Descending), `?sort=price` (Ascending)
+- **Fields Selection**: `?fields=name,description,price`
+- **Details Selection**: `?details=createdBy,projectId`
 - **Filtering**: `?price[gte]=50000&status=available`
 - **Search**: `?search=apartment`
 
@@ -208,7 +216,7 @@ Each module includes four endpoints:
 <br>
 
 
-## Postman - [link](https://documenter.getpostman.com/view/23533987/2sAYdeKqjG)
+## Postman - [link](https://documenter.getpostman.com/view/23533987/2sAYdkG8Zs)
 
 
 <br>

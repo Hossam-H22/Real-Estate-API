@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import PropertyService from "./property.service";
-import { asyncHandler } from "../../utils/errorHandling";
+import { asyncHandler } from "../../middleware/errorHandling.middleware";
 
 const propertyService = new PropertyService();
 class PropertyController {

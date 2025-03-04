@@ -1,7 +1,7 @@
 
 import { NextFunction, Request, Response } from "express";
 import AuthService from "./auth.service";
-import { asyncHandler } from "../../utils/errorHandling";
+import { asyncHandler } from "../../middleware/errorHandling.middleware";
 
 const authService = new AuthService();
 

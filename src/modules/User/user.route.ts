@@ -4,24 +4,25 @@ import * as validators from "./user.validation"
 import { validation } from "../../middleware/validation.middleware";
 import { auth } from "../../middleware/auth.middleware";
 import { UserRole } from "./user.entity";
+import { endPointRoles } from "./user.roles";
 
 const router = Router();
 
 router.get(
     "/all", 
-    auth(), 
+    auth(endPointRoles.getAll), 
     UserController.getAllUsers
 );
 
 router.get(
     "/", 
-    auth(), 
+    auth(endPointRoles.get), 
     UserController.getUserDetails
 );
 
 router.put(
     "/", 
-    auth(), 
+    auth(endPointRoles.update), 
     validation(validators.update) as RequestHandler,
     UserController.updateUser
 );

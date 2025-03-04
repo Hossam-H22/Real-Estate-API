@@ -1,7 +1,7 @@
 
 import { NextFunction, Request, Response } from "express";
 import UserService from "./user.service";
-import { asyncHandler } from "../../utils/errorHandling";
+import { asyncHandler } from "../../middleware/errorHandling.middleware";
 
 const userService = new UserService();
 

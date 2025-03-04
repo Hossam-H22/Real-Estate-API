@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { asyncHandler, CustomError } from "../utils/errorHandling";
+import { asyncHandler, CustomError } from "./errorHandling.middleware";
 import TokenService from "../utils/token.service";
 import { User, UserRole } from "../modules/User/user.entity";
 import AppDataSource from "../database/data-source";

@@ -1,8 +1,8 @@
 import AppDataSource from "../../database/data-source";
 import ApiFeatures from "../../utils/apiFeatures";
-import { CustomError } from "../../utils/errorHandling";
+import { CustomError } from "../../middleware/errorHandling.middleware";
 import { Project } from "../Project/project.entity";
-import { User } from "../User/user.entity";
+import { User, UserRole } from "../User/user.entity";
 import { Property } from "./property.entity";
 import { Repository } from "typeorm";
 import { CloudinaryService } from './../../utils/cloudinary.service';
@@ -27,6 +27,7 @@ class PropertyService {
         const rowsCount = await queryBuilder.getCount();
         const apiFeatures = new ApiFeatures(queryBuilder, 'property', query)
             .select()
+            .relation()
             .filter()
             .search()
             .sort()
@@ -51,6 +52,7 @@ class PropertyService {
         let queryBuilder = this.propertyRepository.createQueryBuilder('property');
         const apiFeatures = new ApiFeatures(queryBuilder, 'property', query)
             .select()
+            .relation()
             .filter()
         const property = await apiFeatures['queryBuilder'].getOne();
         return { message: "Done", property };
@@ -119,9 +121,15 @@ class PropertyService {
     }
 
     async update(userId: string, userRole: string, propertyId: string, data: Partial<Property>, files: Express.Multer.File[]) {
-        const property = await this.propertyRepository.findOneBy({ _id: propertyId, isDeleted: false });
+        const property = await this.propertyRepository.findOne({ 
+            where: { _id: propertyId, isDeleted: false }, 
+            relations: ["createdBy"] 
+        });
         if (!property) {
             throw new CustomError("In-valid property id", 400);
+        }
+        if(userRole === UserRole.AGENT && property.createdBy._id !== userId){
+            throw new CustomError("Not authorized account", 403)
         }
 
         if (data.name) {
@@ -202,9 +210,15 @@ class PropertyService {
     }
 
     async delete(userId: string, userRole: string, propertyId: string) {
-        const property = await this.propertyRepository.findOneBy({ _id: propertyId, isDeleted: false });
+        const property = await this.propertyRepository.findOne({ 
+            where: { _id: propertyId, isDeleted: false }, 
+            relations: ["createdBy"] 
+        });
         if (!property) {
             throw new CustomError("In-valid property id", 400);
+        }
+        if(userRole === UserRole.AGENT && property.createdBy._id !== userId){
+            throw new CustomError("Not authorized account", 403)
         }
         
         const deleteResult = await this.propertyRepository.update(propertyId, {isDeleted:true});

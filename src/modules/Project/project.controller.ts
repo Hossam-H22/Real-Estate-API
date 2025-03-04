@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import ProjectService from "./project.service";
-import { asyncHandler } from "../../utils/errorHandling";
+import { asyncHandler } from "../../middleware/errorHandling.middleware";
 
 const projectService = new ProjectService();
 class ProjectController {

@@ -1,9 +1,9 @@
 import { City } from "./city.entity";
 import AppDataSource from './../../database/data-source';
 import { Repository } from "typeorm";
-import { User } from "../User/user.entity";
+import { User, UserRole } from "../User/user.entity";
 import ApiFeatures from "../../utils/apiFeatures";
-import { CustomError } from "../../utils/errorHandling";
+import { CustomError } from "../../middleware/errorHandling.middleware";
 import { Area } from "../Area/area.entity";
 import { Project } from "../Project/project.entity";
 import { Property } from "../Property/property.entity";
@@ -29,6 +29,7 @@ class CityService {
         const rowsCount = await queryBuilder.getCount();
         const apiFeatures = new ApiFeatures(queryBuilder, 'city', query)
             .select()
+            .relation()
             .filter()
             .search()
             .sort()
@@ -53,6 +54,7 @@ class CityService {
         let queryBuilder = this.cityRepository.createQueryBuilder('city');
         const apiFeatures = new ApiFeatures(queryBuilder, 'city', query)
             .select()
+            .relation()
             .filter()
         const city = await apiFeatures['queryBuilder'].getOne();
         return { message: "Done", city };
@@ -74,9 +76,15 @@ class CityService {
     }
 
     async update(userId: string, userRole: string, cityId: string, data: Partial<City>) {
-        let checkCity = await this.cityRepository.findOneBy({ _id: cityId, isDeleted: false });
+        let checkCity = await this.cityRepository.findOne({ 
+            where: { _id: cityId, isDeleted: false }, 
+            relations: ["createdBy"] 
+        });
         if (!checkCity) {
             throw new CustomError("In-valid city id", 400);
+        }
+        if(userRole === UserRole.AGENT && checkCity.createdBy._id !== userId){
+            throw new CustomError("Not authorized account", 403)
         }
 
         if (data.name) {

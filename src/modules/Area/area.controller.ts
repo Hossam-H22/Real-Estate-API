@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import AreaService from "./area.service";
-import { asyncHandler } from "../../utils/errorHandling";
+import { asyncHandler } from "../../middleware/errorHandling.middleware";
 
 const areaService = new AreaService();
 class AreaController {

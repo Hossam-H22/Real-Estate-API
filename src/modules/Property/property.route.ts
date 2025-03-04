@@ -4,6 +4,7 @@ import * as validators from "./property.validation"
 import { validation } from "../../middleware/validation.middleware";
 import { auth } from "../../middleware/auth.middleware";
 import { CloudinaryService } from "../../utils/cloudinary.service";
+import { endPointRoles } from "./property.roles";
 
 const router = Router();
 
@@ -20,7 +21,7 @@ router.get(
 
 router.post(
     "/", 
-    auth(),
+    auth(endPointRoles.create),
     CloudinaryService.fileUpload(CloudinaryService.fileType.image).array(
         "file",
         5
@@ -31,7 +32,7 @@ router.post(
 
 router.put(
     "/:propertyId", 
-    auth(),
+    auth(endPointRoles.update),
     CloudinaryService.fileUpload(CloudinaryService.fileType.image).array(
         "file",
         5
@@ -42,14 +43,14 @@ router.put(
 
 router.delete(
     "/:propertyId", 
-    auth(),
+    auth(endPointRoles.delete),
     validation(validators.deleting) as RequestHandler,
     PropertyController.deleteProperty
 );
 
 router.patch(
     "/:propertyId/favorite", 
-    auth(),
+    auth(endPointRoles.favorite),
     validation(validators.deleting) as RequestHandler,
     PropertyController.toggleFavoriteProperty
 );
