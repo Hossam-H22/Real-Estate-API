@@ -3,12 +3,12 @@ import { ObjectLiteral, SelectQueryBuilder } from 'typeorm';
 const searchFields: any = {
     "user": ["name", "email", "phone"],
     "area": ["name"],
-    "city": ["name", "country"],
+    "city": ["name"],
     "project": ["name", "description"],
     "property": ["name", "description"],
 }
 
-const realtions: any = {
+const realtionFields: any = {
     "user": [
         { field: "cities", table: "city" },
         { field: "areas", table: "area" },
@@ -42,6 +42,57 @@ const realtions: any = {
     ],
 }
 
+const selectFields: any = {
+    "user": [
+        "_id",
+        "name",
+        "email",
+        "password",
+        "phone",
+        "role",
+        "createdAt",
+        "updatedAt",
+    ],
+    "area": [
+        "_id",
+        "name",
+        "createdAt",
+        "updatedAt",
+        "isDeleted",
+    ],
+    "city": [
+        "_id",
+        "name",
+        "createdAt",
+        "updatedAt",
+        "isDeleted",
+    ],
+    "project": [
+        "_id",
+        "name",
+        "description",
+        "createdAt",
+        "updatedAt",
+        "isDeleted",
+    ],
+    "property": [
+        "_id",
+        "name",
+        "description",
+        "price",
+        "type",
+        "status",
+        "bedrooms",
+        "bathrooms",
+        "squareFeet",
+        "images",
+        "createdAt",
+        "updatedAt",
+        "isDeleted",
+    ],
+}
+
+
 class ApiFeatures<T extends ObjectLiteral> {
     private queryBuilder: SelectQueryBuilder<T>;
     private queryData: any;
@@ -49,7 +100,7 @@ class ApiFeatures<T extends ObjectLiteral> {
     page: number;
     size: number;
 
-    constructor(queryBuilder: SelectQueryBuilder<T>, tableAlias:string, queryData: any) {
+    constructor(queryBuilder: SelectQueryBuilder<T>, tableAlias: string, queryData: any) {
         this.queryBuilder = queryBuilder;
         this.tableAlias = tableAlias;
         this.queryData = queryData;
@@ -73,27 +124,27 @@ class ApiFeatures<T extends ObjectLiteral> {
         const filterQuery = { ...this.queryData };
         const parameters: Record<string, any> = {}; // Store dynamic parameters
         const conditions: string[] = []; // Store dynamic WHERE conditions
-        
+
         excludeQueryParams.forEach(param => delete filterQuery[param]);
         let c = 0;
         Object.entries(filterQuery).forEach(([key, value]) => {
             if (typeof value === 'object' && value !== null) {
                 Object.entries(value).forEach(([operator, val]) => {
                     const op = this.getOperator(operator);
-                    if(op=="BETWEEN"){
-                        if(val.split(',').length==2){
+                    if (op == "BETWEEN") {
+                        if (val.split(',').length == 2) {
                             const [mini, maxi] = val.split(',');
                             conditions.push(`${this.tableAlias}.${key} ${op} :mini${c} AND :maxi${c}`)
                             parameters[`mini${c}`] = mini;
                             parameters[`maxi${c}`] = maxi;
                             c++;
                             // this.queryBuilder.andWhere(`${this.tableAlias}.${key} ${op} :${key}mini AND :${key}maxi`, { mini, maxi });
-                        } 
+                        }
                     }
                     else {
                         // this.queryBuilder.andWhere(`${this.tableAlias}.${key} ${op} ${op=='IN'||op=='NOT IN'? `(:...value)`: `:value`}`, { value: op=='IN'||op=='NOT IN'? val.split(','): val });
-                        conditions.push(`${this.tableAlias}.${key} ${op} ${op=='IN'||op=='NOT IN'? `(:...value${c})`: `:value${c}`}`)
-                        parameters[`value${c}`] = (op=='IN'||op=='NOT IN'? val.split(','): val);
+                        conditions.push(`${this.tableAlias}.${key} ${op} ${op == 'IN' || op == 'NOT IN' ? `(:...value${c})` : `:value${c}`}`)
+                        parameters[`value${c}`] = (op == 'IN' || op == 'NOT IN' ? val.split(',') : val);
                         c++;
                     }
                 });
@@ -104,7 +155,7 @@ class ApiFeatures<T extends ObjectLiteral> {
                 c++
             }
         });
-        
+
         this.queryBuilder.where(conditions.join(" AND "), parameters)
         // console.log("SQL  =======  " + this.queryBuilder.getSql());
         return this;
@@ -127,8 +178,8 @@ class ApiFeatures<T extends ObjectLiteral> {
 
     sort(): this {
         if (this.queryData.sort) {
-            type orderType = { field:string, order:string }
-            const orderBys:orderType[] = this.queryData.sort.split(',').map((field: string) => {
+            type orderType = { field: string, order: string }
+            const orderBys: orderType[] = this.queryData.sort.split(',').map((field: string) => {
                 return field.startsWith('-')
                     ? { field: field.substring(1), order: 'DESC' }
                     : { field, order: 'ASC' };
@@ -143,25 +194,22 @@ class ApiFeatures<T extends ObjectLiteral> {
     select(): this {
         if (this.queryData.fields) {
             const AllFields = this.queryData.fields.split(',').map((field: string) => `${field.trim()}`);
-            
-            // Select Some Fields from table
-            const AllRelationFieldsSet = new Set(realtions[this.tableAlias].map((item: {field:string, table:string}) => item.field));
-            let selectFields = AllFields.filter((item: string) => !AllRelationFieldsSet.has(item));
-            if(selectFields.includes('id')) selectFields[selectFields.indexOf('id')] = "_id"; 
-            if(!selectFields.includes('_id')) selectFields.push('_id');
-            selectFields = selectFields.map((item:string) => `${this.tableAlias}.${item}`)
-            this.queryBuilder.select(selectFields)
+
+            let fields = selectFields[this.tableAlias].filter((item:string) => AllFields.includes(item));
+            if (!fields.includes('_id')) fields.push('_id');
+            fields = fields.map((item: string) => `${this.tableAlias}.${item}`)
+            this.queryBuilder.select(fields)
         }
         return this;
     }
-    
+
     relation(): this {
         if (this.queryData.details) {
             const AllFields = this.queryData.details.split(',').map((field: string) => `${field.trim()}`);
-            
+
             // Apply join with other tables
-            const relationFields = realtions[this.tableAlias].filter((item: { field: string }) => AllFields.includes(item.field));
-            relationFields.forEach((item: {field:string, table:string}) => {
+            const relationFields = realtionFields[this.tableAlias].filter((item: { field: string }) => AllFields.includes(item.field));
+            relationFields.forEach((item: { field: string, table: string }) => {
                 this.queryBuilder.leftJoinAndSelect(`${this.tableAlias}.${item.field}`, item.table);
             });
         }
@@ -173,11 +221,11 @@ class ApiFeatures<T extends ObjectLiteral> {
         if (this.queryData.search) {
             // '(LOWER(title) LIKE :search OR LOWER(description) LIKE :search)',
             let searchQuary: string = `(LOWER(${this.tableAlias}.${searchField[0]}) LIKE :search`
-            if(searchField.length > 1){
-                for(let i=1; i<searchField.length; i++) searchQuary+=` OR LOWER(${this.tableAlias}.${searchField[i]}) LIKE :search`
+            if (searchField.length > 1) {
+                for (let i = 1; i < searchField.length; i++) searchQuary += ` OR LOWER(${this.tableAlias}.${searchField[i]}) LIKE :search`
             }
             searchQuary += ')';
-            
+
             this.queryBuilder.andWhere(
                 searchQuary,
                 { search: `%${this.queryData.search.toLowerCase()}%` }
