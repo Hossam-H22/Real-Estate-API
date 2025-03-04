@@ -27,6 +27,7 @@ class PropertyService {
         const rowsCount = await queryBuilder.getCount();
         const apiFeatures = new ApiFeatures(queryBuilder, 'property', query)
             .select()
+            .relation()
             .filter()
             .search()
             .sort()
@@ -51,6 +52,7 @@ class PropertyService {
         let queryBuilder = this.propertyRepository.createQueryBuilder('property');
         const apiFeatures = new ApiFeatures(queryBuilder, 'property', query)
             .select()
+            .relation()
             .filter()
         const property = await apiFeatures['queryBuilder'].getOne();
         return { message: "Done", property };

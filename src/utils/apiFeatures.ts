@@ -151,6 +151,13 @@ class ApiFeatures<T extends ObjectLiteral> {
             if(!selectFields.includes('_id')) selectFields.push('_id');
             selectFields = selectFields.map((item:string) => `${this.tableAlias}.${item}`)
             this.queryBuilder.select(selectFields)
+        }
+        return this;
+    }
+    
+    relation(): this {
+        if (this.queryData.details) {
+            const AllFields = this.queryData.details.split(',').map((field: string) => `${field.trim()}`);
             
             // Apply join with other tables
             const relationFields = realtions[this.tableAlias].filter((item: { field: string }) => AllFields.includes(item.field));

@@ -29,6 +29,7 @@ class AreaService {
         const rowsCount = await queryBuilder.getCount();
         const apiFeatures = new ApiFeatures(queryBuilder, 'area', query)
             .select()
+            .relation()
             .filter()
             .search()
             .sort()
@@ -53,6 +54,7 @@ class AreaService {
         let queryBuilder = this.areaRepository.createQueryBuilder('area');
         const apiFeatures = new ApiFeatures(queryBuilder, 'area', query)
             .select()
+            .relation()
             .filter();
         const area = await apiFeatures['queryBuilder'].getOne();
         return { message: "Done", area };

@@ -18,6 +18,7 @@ class UserService {
         let queryBuilder = this.userRepository.createQueryBuilder('user');
         const apiFeatures = new ApiFeatures(queryBuilder, 'user', query)
             .select()
+            .relation()
             .filter()
             .search()
             .sort()
@@ -31,6 +32,7 @@ class UserService {
         let queryBuilder = this.userRepository.createQueryBuilder('user');
         const apiFeatures = new ApiFeatures(queryBuilder, 'user', query)
             .select()
+            .relation()
             .filter();
         const user = await apiFeatures['queryBuilder'].getOne();
         // const user = await this.userRepository.findOneBy({ _id: id });

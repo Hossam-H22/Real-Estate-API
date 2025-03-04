@@ -26,6 +26,7 @@ class ProjectService {
         const rowsCount = await queryBuilder.getCount();
         const apiFeatures = new ApiFeatures(queryBuilder, 'project', query)
             .select()
+            .relation()
             .filter()
             .search()
             .sort()
@@ -50,6 +51,7 @@ class ProjectService {
         let queryBuilder = this.projectRepository.createQueryBuilder('project');
         const apiFeatures = new ApiFeatures(queryBuilder, 'project', query)
             .select()
+            .relation()
             .filter()
         const project = await apiFeatures['queryBuilder'].getOne();
         return { message: "Done", project };

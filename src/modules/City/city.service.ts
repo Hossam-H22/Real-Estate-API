@@ -29,6 +29,7 @@ class CityService {
         const rowsCount = await queryBuilder.getCount();
         const apiFeatures = new ApiFeatures(queryBuilder, 'city', query)
             .select()
+            .relation()
             .filter()
             .search()
             .sort()
@@ -53,6 +54,7 @@ class CityService {
         let queryBuilder = this.cityRepository.createQueryBuilder('city');
         const apiFeatures = new ApiFeatures(queryBuilder, 'city', query)
             .select()
+            .relation()
             .filter()
         const city = await apiFeatures['queryBuilder'].getOne();
         return { message: "Done", city };
