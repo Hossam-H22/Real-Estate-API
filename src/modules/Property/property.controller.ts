@@ -43,6 +43,15 @@ class PropertyController {
         );
         res.status(200).json(deleteRes);
     })
+    
+    static toggleFavoriteProperty = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+        const favoriteRes = await propertyService.toggleFavorite(
+            req.headers?.userId as string,
+            req.headers?.userRole as string,
+            req.params.propertyId
+        );
+        res.status(200).json(favoriteRes);
+    })
 
 }
 

@@ -211,6 +211,32 @@ class PropertyService {
         return { message: "Done" };
     }
 
+    async toggleFavorite(userId: string, userRole: string, propertyId: string) {
+        const user = await this.userRepository.findOne({ where: { _id: userId }, relations: ["favorites"] });
+        if(!user) {
+            throw new CustomError("In-valid user id", 400);
+        }
+        const checkExistProperty =  user?.favorites.find((property)=> property._id===propertyId);
+        if(checkExistProperty){
+            user.favorites = user.favorites.filter(property => property._id !== propertyId);
+        }
+        else {
+            const property = await this.propertyRepository.findOneBy({ _id: propertyId, isDeleted: false });
+            if (!property) {
+                throw new CustomError("In-valid property id", 400);
+            }
+            user.favorites.push(property);
+        }
+        await this.userRepository.save(user);
+        
+        const { password, createdAt, updatedAt, ...returnUser } = user
+        return { 
+            message: "Done", 
+            result: checkExistProperty? "Property removed from favorites":"Property added to favorites",
+            user: returnUser
+        };
+    }
+
 }
 
 export default PropertyService;
