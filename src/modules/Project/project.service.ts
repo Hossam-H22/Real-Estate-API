@@ -4,7 +4,7 @@ import ApiFeatures from "../../utils/apiFeatures";
 import { CustomError } from "../../utils/errorHandling";
 import { Project } from "./project.entity";
 import { Area } from "../Area/area.entity";
-import { User } from "../User/user.entity";
+import { User, UserRole } from "../User/user.entity";
 import { Property } from "../Property/property.entity";
 
 class ProjectService {
@@ -93,9 +93,15 @@ class ProjectService {
     }
 
     async update(userId: string, userRole: string, projectId: string, data: Partial<Project>) {
-        const project = await this.projectRepository.findOneBy({ _id: projectId, isDeleted: false });
+        const project = await this.projectRepository.findOne({ 
+            where: { _id: projectId, isDeleted: false }, 
+            relations: ["createdBy"] 
+        });
         if (!project) {
             throw new CustomError("In-valid project id", 400);
+        }
+        if(userRole === UserRole.AGENT && project.createdBy._id !== userId){
+            throw new CustomError("Not authorized account", 403)
         }
 
         if (data.name) {
@@ -148,9 +154,15 @@ class ProjectService {
     }
     
     async delete(userId: string, userRole: string, projectId: string) {
-        const project = await this.projectRepository.findOneBy({ _id: projectId, isDeleted: false });
+        const project = await this.projectRepository.findOne({ 
+            where: { _id: projectId, isDeleted: false }, 
+            relations: ["createdBy"] 
+        });
         if (!project) {
             throw new CustomError("In-valid project id", 400);
+        }
+        if(userRole === UserRole.AGENT && project.createdBy._id !== userId){
+            throw new CustomError("Not authorized account", 403)
         }
 
         const deleteResult = await this.projectRepository.update(projectId, {isDeleted:true});

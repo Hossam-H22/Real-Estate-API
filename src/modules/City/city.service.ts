@@ -1,7 +1,7 @@
 import { City } from "./city.entity";
 import AppDataSource from './../../database/data-source';
 import { Repository } from "typeorm";
-import { User } from "../User/user.entity";
+import { User, UserRole } from "../User/user.entity";
 import ApiFeatures from "../../utils/apiFeatures";
 import { CustomError } from "../../utils/errorHandling";
 import { Area } from "../Area/area.entity";
@@ -74,9 +74,15 @@ class CityService {
     }
 
     async update(userId: string, userRole: string, cityId: string, data: Partial<City>) {
-        let checkCity = await this.cityRepository.findOneBy({ _id: cityId, isDeleted: false });
+        let checkCity = await this.cityRepository.findOne({ 
+            where: { _id: cityId, isDeleted: false }, 
+            relations: ["createdBy"] 
+        });
         if (!checkCity) {
             throw new CustomError("In-valid city id", 400);
+        }
+        if(userRole === UserRole.AGENT && checkCity.createdBy._id !== userId){
+            throw new CustomError("Not authorized account", 403)
         }
 
         if (data.name) {

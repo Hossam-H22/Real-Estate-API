@@ -3,6 +3,7 @@ import AreaController from "./area.controller";
 import * as validators from "./area.validation"
 import { validation } from "../../middleware/validation.middleware";
 import { auth } from "../../middleware/auth.middleware";
+import { endPointRoles } from "./area.roles";
 
 const router = Router();
 
@@ -19,21 +20,21 @@ router.get(
 
 router.post(
     "/",
-    auth(),
+    auth(endPointRoles.create),
     validation(validators.create) as RequestHandler,
     AreaController.createArea
 );
 
 router.put(
     "/:areaId",
-    auth(),
+    auth(endPointRoles.update),
     validation(validators.update) as RequestHandler, 
     AreaController.updateArea
 );
 
 router.delete(
     "/:areaId",
-    auth(),
+    auth(endPointRoles.delete),
     validation(validators.deleting) as RequestHandler, 
     AreaController.deleteArea
 );
