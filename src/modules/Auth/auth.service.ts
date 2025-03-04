@@ -17,15 +17,14 @@ class AuthService {
 
 
     async createUser(data: Partial<User>, file: Express.Multer.File | undefined) {
-        let { email, password } = data;
-        email = email?.toLowerCase();
-        const checkUser = await this.userRepository.findOneBy({ email });
+        data.email = data.email?.toLowerCase();
+        const checkUser = await this.userRepository.findOneBy({ email: data.email });
         if (checkUser) {
             throw new CustomError("Email exist", 409);
         }
 
         // hash password
-        const hashPassword = HashingService.hash(password as string);
+        const hashPassword = HashingService.hash(data.password as string);
         data.password = hashPassword;
 
         const newUser = this.userRepository.create(data);
