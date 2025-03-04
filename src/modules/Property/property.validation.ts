@@ -36,3 +36,7 @@ export const update = z.object({
 export const deleting = z.object({
     propertyId: generalFields.id,
 }).strict();
+
+export const favorite = z.object({
+    propertyId: generalFields.id,
+}).strict();

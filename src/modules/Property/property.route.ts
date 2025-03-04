@@ -47,4 +47,11 @@ router.delete(
     PropertyController.deleteProperty
 );
 
+router.patch(
+    "/:propertyId/favorite", 
+    auth(),
+    validation(validators.deleting) as RequestHandler,
+    PropertyController.toggleFavoriteProperty
+);
+
 export default router;

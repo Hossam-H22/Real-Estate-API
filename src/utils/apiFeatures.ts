@@ -14,6 +14,7 @@ const realtions: any = {
         { field: "areas", table: "area" },
         { field: "projects", table: "project" },
         { field: "properties", table: "property" },
+        { field: "favorites", table: "user_favorite" },
     ],
     "city": [
         { field: "createdBy", table: "user" },

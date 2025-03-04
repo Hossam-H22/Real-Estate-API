@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany, UpdateDateColumn, ManyToMany, JoinTable } from "typeorm";
 import { City } from "../City/city.entity";
 import { Area } from "../Area/area.entity";
 import { Project } from "../Project/project.entity";
@@ -40,6 +40,11 @@ export class User {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    // Wishlist (Unidirectional)
+    @ManyToMany(() => Property)
+    @JoinTable({ name: "user_favorite" }) // Custom table name
+    favorites: Property[];
 
     @OneToMany(() => City, (city) => city.createdBy)
     cities: City[];
