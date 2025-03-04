@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import AppDataSource from "../../database/data-source";
 import ApiFeatures from "../../utils/apiFeatures";
-import { CustomError } from "../../utils/errorHandling";
+import { CustomError } from "../../middleware/errorHandling.middleware";
 import { Project } from "./project.entity";
 import { Area } from "../Area/area.entity";
 import { User, UserRole } from "../User/user.entity";

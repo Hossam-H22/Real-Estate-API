@@ -1,6 +1,6 @@
 import AppDataSource from "../../database/data-source";
 import ApiFeatures from "../../utils/apiFeatures";
-import { CustomError } from "../../utils/errorHandling";
+import { CustomError } from "../../middleware/errorHandling.middleware";
 import { User } from "./user.entity";
 import { Repository } from "typeorm";
 

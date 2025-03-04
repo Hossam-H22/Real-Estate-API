@@ -8,7 +8,7 @@ import cityRoutes from './modules/City/city.route';
 import areaRoutes from './modules/Area/area.route';
 import projectRoutes from './modules/Project/project.route';
 import propertyRoutes from './modules/Property/property.route';
-import { globalErrorHandling } from './utils/errorHandling';
+import { globalErrorHandling } from './middleware/errorHandling.middleware';
 
 function initApp(app:Express) {
 

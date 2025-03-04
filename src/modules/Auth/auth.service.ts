@@ -1,5 +1,5 @@
 import AppDataSource from "../../database/data-source";
-import { CustomError } from "../../utils/errorHandling";
+import { CustomError } from "../../middleware/errorHandling.middleware";
 import { Repository } from "typeorm";
 import { User } from "../User/user.entity";
 import HashingService from "../../utils/hash.service";

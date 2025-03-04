@@ -1,6 +1,6 @@
 import AppDataSource from "../../database/data-source";
 import ApiFeatures from "../../utils/apiFeatures";
-import { CustomError } from "../../utils/errorHandling";
+import { CustomError } from "../../middleware/errorHandling.middleware";
 import { Project } from "../Project/project.entity";
 import { User, UserRole } from "../User/user.entity";
 import { Property } from "./property.entity";

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import CityService from "./city.service";
-import { asyncHandler } from "../../utils/errorHandling";
+import { asyncHandler } from "../../middleware/errorHandling.middleware";
 
 const cityService = new CityService();
 

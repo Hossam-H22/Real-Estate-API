@@ -3,7 +3,7 @@ import AppDataSource from './../../database/data-source';
 import { Repository } from "typeorm";
 import { User, UserRole } from "../User/user.entity";
 import ApiFeatures from "../../utils/apiFeatures";
-import { CustomError } from "../../utils/errorHandling";
+import { CustomError } from "../../middleware/errorHandling.middleware";
 import { Area } from "../Area/area.entity";
 import { Project } from "../Project/project.entity";
 import { Property } from "../Property/property.entity";
