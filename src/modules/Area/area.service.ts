@@ -38,10 +38,10 @@ class AreaService {
         const metadata: any = {
             totalNumberOfData: rowsCount,
             limit: apiFeatures.size,
-            numberOfPages: Math.floor(rowsCount / apiFeatures.size) || 1,
+            numberOfPages: Math.ceil(rowsCount / apiFeatures.size) || 1,
             currentPage: apiFeatures.page,
         }
-        const restPages = Math.floor(rowsCount / apiFeatures.size) - apiFeatures.page;
+        const restPages = Math.ceil(rowsCount / apiFeatures.size) - apiFeatures.page;
         if (restPages > 0) metadata.nextPage = apiFeatures.page + 1;
         
         const areas = await apiFeatures['queryBuilder'].getMany();
